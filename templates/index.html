@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Calculadora IO - Interfaz Web</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+  </head>
+  <body>
+    <div id="loading-overlay" class="loading-overlay" aria-live="polite" aria-busy="true" aria-hidden="true">
+      <div class="loading-card text-center">
+        <div class="loading-spinner mx-auto" role="status" aria-label="Cargando"></div>
+        <div class="loading-title">Procesando tu ejercicio</div>
+        <p class="loading-text mb-0">La calculadora está resolviendo el problema. Espera un momento.</p>
+      </div>
+    </div>
+
+    <div class="container py-4 py-md-5">
+      <div class="hero p-4 p-md-5 mb-4">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-8">
+            <span class="badge rounded-pill text-bg-info mb-3">Local · IO Solver</span>
+            <h1 class="display-6 fw-bold mb-3">Calculadora IO</h1>
+            <p class="small-note mb-0">Pega el enunciado, resuélvelo localmente y consulta el contexto del libro en un panel separado.</p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <button class="btn btn-accent px-4 py-2" type="button" onclick="document.getElementById('pregunta').focus()">Empezar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <h2 class="h4 mb-1">Acceso rápido</h2>
+            <div class="small-note">Elige un tipo de problema y carga un ejemplo listo para probar.</div>
+          </div>
+          <div class="small-note">Tarjetas de inicio por categoría</div>
+        </div>
+        <div class="quick-grid">
+          <div class="example-card p-4">
+            <div class="example-tag">PERT / CPM</div>
+            <h3 class="h5">Ruta crítica y precedencias</h3>
+            <p class="small-note">Ejercicios de actividades, duraciones y ruta crítica.</p>
+            <button class="btn btn-sm btn-accent" type="button" data-example="PERT">Cargar ejemplo</button>
+          </div>
+          <div class="example-card p-4">
+            <div class="example-tag">Redes</div>
+            <h3 class="h5">Flujo máximo</h3>
+            <p class="small-note">Nodos, capacidades y cálculo del flujo máximo.</p>
+            <button class="btn btn-sm btn-accent" type="button" data-example="FLUJO">Cargar ejemplo</button>
+          </div>
+          <div class="example-card p-4">
+            <div class="example-tag">Logística</div>
+            <h3 class="h5">Transporte y transbordo</h3>
+            <p class="small-note">Oferta, demanda y rutas con costo mínimo.</p>
+            <button class="btn btn-sm btn-accent" type="button" data-example="TRANSPORTE">Cargar ejemplo</button>
+          </div>
+          <div class="example-card p-4">
+            <div class="example-tag">Optimización</div>
+            <h3 class="h5">LP, NLP, EOQ y colas</h3>
+            <p class="small-note">Inventarios, colas, programación lineal y no lineal.</p>
+            <button class="btn btn-sm btn-accent" type="button" data-example="LP">Cargar ejemplo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="panel p-4 h-100">
+            <form method="post" id="solver-form">
+              <div class="mb-3">
+                <label for="ejemplo" class="form-label fw-semibold">Cargar ejemplo</label>
+                <select id="ejemplo" class="form-select form-control">
+                  <option value="">Selecciona un ejemplo...</option>
+                  <option value="PERT">PERT / Ruta crítica</option>
+                  <option value="FLUJO">Flujo máximo</option>
+                  <option value="TRANSPORTE">Transporte / Transbordo</option>
+                  <option value="EOQ">EOQ / Inventarios</option>
+                  <option value="COLAS">Colas M/M/1</option>
+                  <option value="LP">Programación lineal</option>
+                  <option value="NLP">Programación no lineal</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="pregunta" class="form-label fw-semibold">Escribe el enunciado</label>
+                <textarea id="pregunta" name="pregunta" rows="14" class="form-control" placeholder="Pega aquí tu problema...">{{ pregunta }}</textarea>
+              </div>
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-accent px-4" type="submit">Resolver</button>
+                <button class="btn btn-outline-soft" type="button" id="copy-result">Copiar resultado</button>
+                <button class="btn btn-outline-soft" type="button" id="download-txt">Exportar TXT</button>
+                <button class="btn btn-outline-soft" type="button" id="print-pdf">Exportar PDF</button>
+                <button class="btn btn-outline-soft" type="button" id="export-history">Exportar historial</button>
+                <label class="btn btn-outline-soft mb-0" for="import-history">Importar historial</label>
+                <input type="file" id="import-history" accept="application/json" hidden>
+                <button class="btn btn-outline-light" type="button" id="clear-history">Borrar historial</button>
+              </div>
+            </form>
+
+            {% if resultado %}
+            <hr class="border-secondary my-4">
+            <h3 class="h5 mb-3">Resultado</h3>
+            <div id="print-area" class="panel p-3" style="background: rgba(11, 18, 32, 0.95);">
+              <pre id="result-output">{{ resultado }}</pre>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="sidebar-sticky">
+            <div class="panel p-4 mb-4">
+              <h3 class="h5 mb-3">Contexto del libro</h3>
+              {% if contexto_libro %}
+              <div class="panel p-3" style="background: rgba(11, 18, 32, 0.95);">
+                <pre>{{ contexto_libro }}</pre>
+              </div>
+              {% else %}
+              <p class="small-note mb-0">Aquí aparecerán fragmentos relevantes de Hillier cuando envíes un problema.</p>
+              {% endif %}
+            </div>
+
+            <div class="panel p-4">
+              <h3 class="h5 mb-3">Historial local</h3>
+              <div id="history-list" class="small-note">Todavía no hay consultas.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="small-note mt-4 mb-0">Local: ejecuta <code>python web.py</code> y abre <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a></p>
+    </div>
+
+    <script>
+      const examples = {
+        PERT: `Actividad A (4d). Actividad B (3d) depende de A. Actividad C (2d) depende de A. Actividad D (5d) depende de B y C. FIN`,
+        FLUJO: `S — A: 10\nS — B: 15\nA — T: 10\nB — T: 15\nA — B: 5\nFIN`,
+        TRANSPORTE: `Planta 1 ofrece 20, Planta 2 ofrece 30. Cliente 1 demanda 25, Cliente 2 demanda 25. Costos: P1-C1=2, P1-C2=4, P2-C1=3, P2-C2=1. FIN`,
+        EOQ: `Demanda (D) = 10000. Costo de pedido (S) = 50. Costo de mantenimiento (H) = 2. FIN`,
+        COLAS: `lambda = 10, mu = 12. FIN`,
+        LP: `Max Z = 12x_1 + 25x_2 + 55x_3 + 150x_4 + 20x_5\n2x_1 + 5x_2 + 10x_3 + 28x_4 + 12x_5 <=1000\n1x_1 + 1x_2 + 2x_3 + 4x_4 + 2x_5 <=120\n300x_1 + 500x_2 + 1000x_3 + 2500x_4 + 600x_5 <=60000\nx_1 + x_2 + x_3 + x_4 + x_5 >=40\nFIN`,
+        NLP: `Un almacén rectangular debe tener 1000 m^2. El costo de la pared frontal es 100/m y las otras tres 50/m. FIN`
+      };
+
+      const form = document.getElementById('solver-form');
+      const textarea = document.getElementById('pregunta');
+      const historyList = document.getElementById('history-list');
+      const clearButton = document.getElementById('clear-history');
+      const copyButton = document.getElementById('copy-result');
+      const downloadTxtButton = document.getElementById('download-txt');
+      const printPdfButton = document.getElementById('print-pdf');
+      const exportHistoryButton = document.getElementById('export-history');
+      const importHistoryInput = document.getElementById('import-history');
+      const exampleSelector = document.getElementById('ejemplo');
+      const loadingOverlay = document.getElementById('loading-overlay');
+      const primarySubmitButton = form.querySelector('button[type="submit"]');
+      const actionButtons = [copyButton, downloadTxtButton, printPdfButton, exportHistoryButton, clearButton].filter(Boolean);
+      const historyKey = 'calculadora_io_history';
+
+      function setLoadingState(isLoading) {
+        loadingOverlay.classList.toggle('is-visible', isLoading);
+        loadingOverlay.setAttribute('aria-hidden', isLoading ? 'false' : 'true');
+
+        [primarySubmitButton, ...actionButtons].forEach((button) => {
+          if (button) {
+            button.disabled = isLoading;
+          }
+        });
+
+        exampleSelector.disabled = isLoading;
+      }
+
+      function loadHistory() {
+        const rawItems = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        const items = rawItems.map((item) => typeof item === 'string' ? { text: item, timestamp: '' } : item);
+
+        if (!rawItems.length) {
+          historyList.innerHTML = '<div class="small-note">Todavía no hay consultas.</div>';
+          return;
+        }
+
+        historyList.innerHTML = items.map((item, index) => {
+          const timeLabel = item.timestamp ? new Date(item.timestamp).toLocaleString() : 'Guardado localmente';
+          return `
+          <div class="history-item">
+            <div class="small-note mb-2">Consulta ${items.length - index} · ${timeLabel}</div>
+            <div class="mb-2">${item.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            <button class="btn btn-sm btn-link p-0 load-history" data-index="${index}">Cargar</button>
+          </div>
+        `;
+        }).join('');
+
+        document.querySelectorAll('.load-history').forEach((button) => {
+          button.addEventListener('click', () => {
+            const idx = Number(button.dataset.index);
+            textarea.value = items[idx].text;
+            textarea.focus();
+          });
+        });
+      }
+
+      form.addEventListener('submit', (event) => {
+        const value = textarea.value.trim();
+        if (!value) return;
+        const items = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        items.unshift({ text: value, timestamp: new Date().toISOString() });
+        localStorage.setItem(historyKey, JSON.stringify(items.slice(0, 10)));
+
+        event.preventDefault();
+        setLoadingState(true);
+        requestAnimationFrame(() => {
+          form.submit();
+        });
+      });
+
+      exampleSelector.addEventListener('change', () => {
+        const selected = exampleSelector.value;
+        if (selected && examples[selected]) {
+          textarea.value = examples[selected];
+          textarea.focus();
+        }
+      });
+
+      copyButton.addEventListener('click', async () => {
+        const result = document.getElementById('result-output');
+        if (!result) return;
+        await navigator.clipboard.writeText(result.innerText);
+        copyButton.textContent = 'Copiado';
+        setTimeout(() => { copyButton.textContent = 'Copiar resultado'; }, 1200);
+      });
+
+      downloadTxtButton.addEventListener('click', () => {
+        const result = document.getElementById('result-output');
+        if (!result) return;
+        const blob = new Blob([result.innerText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'resultado_calculadora_io.txt';
+        anchor.click();
+        URL.revokeObjectURL(url);
+      });
+
+      printPdfButton.addEventListener('click', async () => {
+        const result = document.getElementById('result-output');
+        if (!result) return;
+
+        const contexto = document.querySelector('.sidebar-sticky .panel .panel');
+        const payload = {
+          pregunta: textarea.value.trim(),
+          resultado: result.innerText,
+          contexto_libro: contexto ? contexto.innerText : ''
+        };
+
+        const response = await fetch('/exportar-pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          alert('No se pudo generar el PDF.');
+          return;
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'resultado_calculadora_io.pdf';
+        anchor.click();
+        URL.revokeObjectURL(url);
+      });
+
+      exportHistoryButton.addEventListener('click', () => {
+        const items = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'historial_calculadora_io.json';
+        anchor.click();
+        URL.revokeObjectURL(url);
+      });
+
+      importHistoryInput.addEventListener('change', async () => {
+        const file = importHistoryInput.files && importHistoryInput.files[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          if (!Array.isArray(parsed)) {
+            alert('El archivo no tiene un formato de historial válido.');
+            return;
+          }
+
+          const normalized = parsed
+            .map((item) => {
+              if (typeof item === 'string') {
+                return { text: item, timestamp: '' };
+              }
+
+              if (item && typeof item.text === 'string') {
+                return { text: item.text, timestamp: item.timestamp || '' };
+              }
+
+              return null;
+            })
+            .filter(Boolean)
+            .slice(0, 10);
+
+          localStorage.setItem(historyKey, JSON.stringify(normalized));
+          loadHistory();
+          alert('Historial importado correctamente.');
+        } catch (error) {
+          alert('No se pudo importar el archivo de historial.');
+        } finally {
+          importHistoryInput.value = '';
+        }
+      });
+
+      document.querySelectorAll('[data-example]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const key = button.dataset.example;
+          exampleSelector.value = key;
+          const selected = examples[key];
+          if (selected) {
+            textarea.value = selected;
+            textarea.focus();
+          }
+        });
+      });
+
+      clearButton.addEventListener('click', () => {
+        localStorage.removeItem(historyKey);
+        loadHistory();
+      });
+
+      loadHistory();
+    </script>
+  </body>
+</html>
