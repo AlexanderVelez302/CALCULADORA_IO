@@ -23,6 +23,13 @@
 - 📊 **Exportación** a PDF, TXT, JSON
 - ✏️ **Historial local** (persistencia con localStorage)
 - ⚡ **Validación en tiempo real** con indicador de carga
+- 🔁 **Compatibilidad de formatos** en varios solvers y tests alineados con el parser real
+
+### Estado de validación
+
+- ✅ Suite de pruebas actual: **102 tests passing**
+- ✅ Compatibilidad añadida para integraciones antiguas del router
+- ✅ Solvers y web validados con entradas reales de uso
 
 ---
 
@@ -115,9 +122,9 @@ CALCULADORA_IO/
 │   ├── test_transporte.py
 │   ├── test_eoq.py
 │   ├── test_colas.py
-│   ├── test_nlp_v2.py
+│   ├── test_nlp.py
 │   ├── test_web.py
-│   └── test_integration_v2.py
+│   └── test_integration.py
 │
 ├── data/                      # Datos (PDFs, bases de datos)
 ├── config/                    # Configuración

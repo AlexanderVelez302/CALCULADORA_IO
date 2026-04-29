@@ -193,7 +193,7 @@ def resolver_transporte(texto):
         resultado = "🚚 SOLUCIÓN DE TRANSPORTE (Método de Costo Mínimo)\n\n"
         resultado += "Matriz de Costos:\n"
         for i, fila in enumerate(costos):
-            resultado += f"P{i+1}: {' '.join(f'{x:3d}' for x in fila)}\n"
+            resultado += f"P{i+1}: {' '.join(f'{int(x):3d}' for x in fila)}\n"
         
         resultado += "\nAsignación Óptima:\n"
         for i in range(m):

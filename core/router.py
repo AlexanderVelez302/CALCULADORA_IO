@@ -81,3 +81,8 @@ def resolver(pregunta):
 -------------------
 📖 {explicacion}
 """
+
+
+def router(pregunta):
+    """Compatibilidad retroactiva para tests/código que importan `router`."""
+    return resolver(pregunta)
