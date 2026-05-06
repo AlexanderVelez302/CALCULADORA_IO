@@ -11,6 +11,30 @@ def parsear_transporte(texto):
     "Costo A — B = 5, B — C = 3, A — C = 10"
     """
     
+    texto_lower = texto.lower()
+
+    # Intentar parsear formato natural:
+    # "Planta 1 ofrece 20, Planta 2 ofrece 30. Cliente 1 demanda 25 ..."
+    oferta_natural = re.findall(r'planta\s*(\d+)\s*ofrece\s*(\d+)', texto_lower)
+    demanda_natural = re.findall(r'cliente\s*(\d+)\s*demanda\s*(\d+)', texto_lower)
+    if oferta_natural and demanda_natural:
+        oferta_ordenada = sorted((int(i), int(v)) for i, v in oferta_natural)
+        demanda_ordenada = sorted((int(i), int(v)) for i, v in demanda_natural)
+
+        oferta = [v for _, v in oferta_ordenada]
+        demanda = [v for _, v in demanda_ordenada]
+        m, n = len(oferta), len(demanda)
+        costos = np.zeros((m, n), dtype=int)
+
+        costos_matches = re.findall(r'p\s*(\d+)\s*[—\-]\s*c\s*(\d+)\s*[=:]\s*(\d+)', texto_lower)
+        for p, c, costo in costos_matches:
+            i = int(p) - 1
+            j = int(c) - 1
+            if 0 <= i < m and 0 <= j < n:
+                costos[i][j] = int(costo)
+
+        return costos, np.array(oferta, dtype=int), np.array(demanda, dtype=int)
+
     # Intentar parsear como transporte tradicional (con Plantas y Clientes)
     oferta_match = re.search(r'Plantas?\s*\((.*?)\)', texto)
     demanda_match = re.search(r'Clientes?\s*\((.*?)\)', texto)

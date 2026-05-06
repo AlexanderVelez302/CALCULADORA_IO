@@ -82,6 +82,7 @@ python main.py
 
 ```
 CALCULADORA_IO/
+├── COMPARATIVA_APP_VS_RAG.md  # Diferencias App determinista vs Notebook RAG
 ├── main.py                    # Entrada console
 ├── web.py                     # Servidor Flask
 ├── requirements.txt           # Dependencias
@@ -146,6 +147,11 @@ Calcula rutas críticas, tiempos más tempranos (ES/EF) y más tardíos (LS/LF).
 A(duración) B(duración) ..., A→B→C, ...
 ```
 
+**Formato narrativo (también soportado):**
+```
+Actividad A (4d). Actividad B (3d) depende de A. Actividad C (2d) depende de A. Actividad D (5d) depende de B y C.
+```
+
 **Ejemplo:**
 ```
 A(3) B(4) C(5) D(4) E(2), A→B→D→E, A→C, C→E
@@ -183,6 +189,11 @@ Demanda: X(35) Y(50) Z(65)
 A-X: 2, A-Y: 3, A-Z: 1
 B-X: 5, B-Y: 2, B-Z: 3
 C-X: 1, C-Y: 4, C-Z: 2
+```
+
+**Formato narrativo (también soportado):**
+```
+Planta 1 ofrece 20, Planta 2 ofrece 30. Cliente 1 demanda 25, Cliente 2 demanda 25. Costos: P1-C1=2, P1-C2=4, P2-C1=3, P2-C2=1.
 ```
 
 ### 4. EOQ (Economic Order Quantity)

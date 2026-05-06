@@ -33,6 +33,11 @@ python main.py
 A(3) B(4) C(5) D(4) E(2), A→B→D→E, A→C, C→E
 ```
 
+**Ejemplo narrativo (soportado):**
+```
+Actividad A (4d). Actividad B (3d) depende de A. Actividad C (2d) depende de A. Actividad D (5d) depende de B y C. FIN
+```
+
 **Explicación:**
 - A, B, C, D, E son actividades con duraciones en paréntesis
 - A→B→D→E: A debe completarse antes de B, B antes de D, etc.
@@ -101,6 +106,11 @@ Fábrica_A a Almacén_3: 8
 Fábrica_B a Almacén_1: 5
 Fábrica_B a Almacén_2: 3
 Fábrica_B a Almacén_3: 7
+```
+
+**Ejemplo narrativo (soportado):**
+```
+Planta 1 ofrece 20, Planta 2 ofrece 30. Cliente 1 demanda 25, Cliente 2 demanda 25. Costos: P1-C1=2, P1-C2=4, P2-C1=3, P2-C2=1. FIN
 ```
 
 **Salida:**

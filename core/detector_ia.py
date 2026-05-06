@@ -23,6 +23,11 @@ def detectar_tipo_con_ia(pregunta):
         return 'eoq'
     if ('demanda diaria' in pregunta_lower or 'demanda/día' in pregunta_lower or 'demanda por día' in pregunta_lower or 'd diaria' in pregunta_lower) and ('lead time' in pregunta_lower or 'tiempo de entrega' in pregunta_lower):
         return 'eoq'
+    # Heurística: transporte en lenguaje natural (planta/cliente + costos)
+    if ('planta' in pregunta_lower and 'ofrece' in pregunta_lower and 'cliente' in pregunta_lower and 'demanda' in pregunta_lower):
+        if re.search(r'p\s*\d+\s*[-—]\s*c\s*\d+\s*=', pregunta_lower):
+            return 'transporte'
+
     # Heurística: si tiene patrón "A — B = costo" sin mencionar "flujo máximo" o "capacidad residual"
     if ('—' in pregunta or '—' in pregunta) and ' = ' in pregunta and 'flujo máximo' not in pregunta.lower():
         if re.search(r'[A-Z]\s*[—\-]\s*[A-Z]\s*=\s*\d+', pregunta):
@@ -44,6 +49,10 @@ def detectar_tipo_con_ia(pregunta):
 
     # Heurística: PERT / Ruta crítica
     # Detecta actividades con duración y dependencias tipo "A debe terminar"
+    if re.search(r'actividad\s+[a-z]\s*\(\s*\d+\s*[dh]?', pregunta_lower):
+        if 'depende de' in pregunta_lower or 'actividades' in pregunta_lower:
+            return 'pert'
+
     if re.search(r'\b[A-Z]\s*:\s*[^\n\r]+\(\s*\d+\s*d[ií]as?\s*\)', pregunta, re.IGNORECASE):
         if re.search(r'debe\s+terminar|precede|depende\s+de|ruta\s+cr[ií]tica|actividades?', pregunta_lower):
             return 'pert'

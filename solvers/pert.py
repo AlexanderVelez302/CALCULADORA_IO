@@ -3,6 +3,7 @@ import re
 
 def resolver_pert(texto):
     try:
+        texto_original = texto
         actividades = {}
 
         # -------------------------
@@ -45,6 +46,21 @@ def resolver_pert(texto):
                 "ES": 0, "EF": 0,
                 "LS": 0, "LF": 0
             }
+
+        # Soporte para formato narrativo:
+        # "Actividad B (3d) depende de A" / "Actividad D (5d) depende de B y C"
+        dependencias_narrativas = re.findall(
+            r"actividad\s+([A-Z])\s*\(\s*\d+\s*[a-záéíóú]*\s*\)\s*depende\s+de\s+([A-Z](?:\s*(?:,|y)\s*[A-Z])*)",
+            texto_original,
+            flags=re.IGNORECASE,
+        )
+        for act, deps_texto in dependencias_narrativas:
+            act = act.upper()
+            if act not in actividades:
+                continue
+            deps = [d.upper() for d in re.findall(r"[A-Z]", deps_texto)]
+            existentes = set(actividades[act]["predecesores"])
+            actividades[act]["predecesores"] = sorted(list(existentes.union(deps)))
 
         if not actividades:
             return "⚠️ No se pudieron extraer actividades"

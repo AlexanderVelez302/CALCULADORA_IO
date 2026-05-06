@@ -42,11 +42,16 @@
 - ✅ test_integration.py
 - 📊 Total: **102 tests passing**
 
+Casos narrativos validados recientemente:
+- ✅ PERT en formato "Actividad X (...) depende de ..."
+- ✅ Transporte en formato "Planta X ofrece..., Cliente Y demanda..., Costos: P1-C1=..."
+
 #### 5. **Documentación**
 - ✅ **README.md** - Descripción general, inicio rápido, arquitectura
 - ✅ **INSTALACION.md** - Paso a paso, troubleshooting
 - ✅ **USO.md** - Ejemplos por tipo de problema, guía interfaz web
 - ✅ **DESARROLLO.md** - Arquitectura, cómo agregar solvers, testing
+- ✅ **COMPARATIVA_APP_VS_RAG.md** - Diferencias entre enfoque determinista y enfoque RAG
 
 #### 6. **Funcionalidad Core**
 - ✅ Console entry point (main.py)
@@ -140,6 +145,7 @@ CALCULADORA_IO/
 │   ├── INSTALACION.md               ← Paso a paso
 │   ├── USO.md                       ← Guía de usuario
 │   ├── DESARROLLO.md                ← Para developers
+│   ├── COMPARATIVA_APP_VS_RAG.md    ← App vs Notebook RAG
 │   └── VALIDACION.md                ← Este archivo
 │
 ├── 🔧 Configuración
@@ -183,9 +189,9 @@ CALCULADORA_IO/
 │   ├── tests/test_transporte.py
 │   ├── tests/test_eoq.py
 │   ├── tests/test_colas.py
-│   ├── tests/test_nlp_v2.py
+│   ├── tests/test_nlp.py
 │   ├── tests/test_web.py
-│   └── tests/test_integration_v2.py
+│   └── tests/test_integration.py
 │
 ├── 📚 Datos
 │   └── data/                        (PDFs, etc)
