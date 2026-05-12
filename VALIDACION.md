@@ -2,6 +2,8 @@
 
 ## Estado del Proyecto - 29 de Abril 2026
 
+> Actualización registrada: el entorno virtual fue regenerado con Python 3.14 y `web.py` vuelve a iniciar correctamente en la configuración actual.
+
 ### ✅ COMPLETADO
 
 #### 1. **Solvers Implementados** (8 tipos)

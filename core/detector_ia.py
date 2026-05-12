@@ -1,4 +1,3 @@
-from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 import re
@@ -7,10 +6,20 @@ from ai.embeddings import buscar_contexto_libro
 
 load_dotenv()
 
-llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
-    temperature=0,
-    api_key=os.getenv("GROQ_API_KEY")
+try:
+    from langchain_groq import ChatGroq
+except Exception:
+    ChatGroq = None
+
+_groq_api_key = os.getenv("GROQ_API_KEY")
+llm = (
+    ChatGroq(
+        model="llama-3.3-70b-versatile",
+        temperature=0,
+        api_key=_groq_api_key,
+    )
+    if ChatGroq and _groq_api_key
+    else None
 )
 
 def detectar_tipo_con_ia(pregunta):
@@ -69,6 +78,9 @@ def detectar_tipo_con_ia(pregunta):
         if ('<=' in pregunta or '>=' in pregunta or '=' in pregunta) and re.search(r'x_\d+|[a-z]\d*', pregunta_lower):
             return 'lp'
     
+    if llm is None:
+        return "desconocido"
+
     contexto = buscar_contexto_libro(pregunta)
 
     prompt = f"""

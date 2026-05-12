@@ -2,7 +2,7 @@
 
 ## Prerrequisitos
 
-- **Python 3.13+** instalado y en PATH
+- **Python 3.14+** instalado y en PATH
 - **pip** (gestor de paquetes)
 - **Git** (opcional, para clonar)
 - **Una API key de Groq** (gratis en [console.groq.com](https://console.groq.com))
@@ -137,6 +137,8 @@ python -c "from solvers.pert import resolver_pert; r = resolver_pert('A(2) B(3),
 python web.py
 # Debería mostrar: "Running on http://localhost:5000"
 ```
+
+> Nota: el entorno virtual del proyecto fue regenerado con Python 3.14 para alinearlo con el intérprete disponible actualmente en la máquina.
 
 ---
 

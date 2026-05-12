@@ -1,12 +1,16 @@
 import re
 
-from groq import Groq
 import os
 
 from ai.embeddings import buscar_contexto_libro
 
+try:
+    from groq import Groq
+except Exception:
+    Groq = None
+
 _groq_api_key = os.getenv("GROQ_API_KEY")
-client = Groq(api_key=_groq_api_key) if _groq_api_key else None
+client = Groq(api_key=_groq_api_key) if Groq and _groq_api_key else None
 
 
 def _es_resultado_pert(resultado):
